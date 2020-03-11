@@ -6,4 +6,4 @@ steps:
   
     - id: build-builder
       name: gcr.io/cloud-builders/docker
-      args: ['build', '--rm=false', '-t', 'eu.gcr.io/$PROJECT_ID/pyslo-builder', '-f', 'Dockerfile', '.']
+      args: ['build', '--rm=false', '-t', 'eu.gcr.io/$PROJECT_ID/pyslo-builder', '-f', './cloudbuild/Dockerfile', '.']
