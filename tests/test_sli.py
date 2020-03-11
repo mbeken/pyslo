@@ -7,8 +7,8 @@ sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
     )
 
-from sli import sli
-from sli.metric_client import StackdriverMetricClient
+from pyslo import sli
+from pyslo.metric_client import StackdriverMetricClient
 
 
 @pytest.fixture
