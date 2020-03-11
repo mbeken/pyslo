@@ -3,6 +3,12 @@ steps:
     #
     # Building
     #
+    - name: 'gcr.io/cloud-builders/docker'
+      entrypoint: 'bash'
+      args:
+      - '-c'
+      - |
+        docker pull gcr.io/$PROJECT_ID/pyslo-builder:latest || exit 0    
   
     - id: build-builder
       name: gcr.io/cloud-builders/docker
@@ -20,9 +26,15 @@ steps:
     #
 
     - id: test
-      name: eu.gcr.io/$PROJECT_ID/pyslo-builder
+      name: eu.gcr.io/$PROJECT_ID/pyslo-builder:latest
       args: ['cloudbuild/scripts/test.sh']
       waitFor:
         - build-builder
+
+    - id: build-package
+      name: eu.gcr.io/$PROJECT_ID/pyslo-builder:latest
+      args: ['./scripts/build.sh']
+      waitFor:
+        - test        
 
 images: ['eu.gcr.io/$PROJECT_ID/pyslo-builder:latest']
