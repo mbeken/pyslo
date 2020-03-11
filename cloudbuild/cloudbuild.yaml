@@ -11,7 +11,7 @@ steps:
                 'build',
                 '--rm=false',
                 '-t','eu.gcr.io/$PROJECT_ID/pyslo-builder',
-                '--cache-from', 'gcr.io/$PROJECT_ID/pyslo-builder:latest',
+                '--cache-from', 'eu.gcr.io/$PROJECT_ID/pyslo-builder:latest',
                 '-f', './Dockerfile', '.'
         ]
     
