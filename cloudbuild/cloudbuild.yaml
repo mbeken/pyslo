@@ -8,7 +8,7 @@ steps:
       args:
       - '-c'
       - |
-        docker pull gcr.io/$PROJECT_ID/pyslo-builder:latest || exit 0    
+        docker pull eu.gcr.io/$PROJECT_ID/pyslo-builder:latest || exit 0    
   
     - id: build-builder
       name: gcr.io/cloud-builders/docker
@@ -33,7 +33,7 @@ steps:
 
     - id: build-package
       name: eu.gcr.io/$PROJECT_ID/pyslo-builder:latest
-      args: ['./scripts/build.sh']
+      args: ['cloudbuild/scripts/build.sh']
       waitFor:
         - test        
 
