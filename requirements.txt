@@ -1,3 +1,2 @@
 google-cloud-monitoring
 pandas
-pytest
