@@ -10,7 +10,7 @@ steps:
       args: [
                 'build',
                 '--rm=false',
-                '-t','eu.gcr.io/$PROJECT_ID/pyslo-builder',
+                '-t','eu.gcr.io/$PROJECT_ID/pyslo-builder:latest',
                 '--cache-from', 'eu.gcr.io/$PROJECT_ID/pyslo-builder:latest',
                 '-f', './Dockerfile', '.'
         ]
