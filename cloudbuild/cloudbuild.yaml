@@ -15,7 +15,6 @@ steps:
 
     - id: test
       name: eu.gcr.io/$PROJECT_ID/pyslo-builder
-      args: ['./scripts/test.sh']
-      dir: cloudbuild/
+      args: ['.cloudbuild/scripts/test.sh']
       waitFor:
         - build-builder
