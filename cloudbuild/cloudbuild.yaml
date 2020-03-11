@@ -14,7 +14,7 @@ steps:
                 '--cache-from', 'eu.gcr.io/$PROJECT_ID/pyslo-builder:latest',
                 '-f', './Dockerfile', '.'
         ]
-    
+    images: ['eu.gcr.io/$PROJECT_ID/pyslo-builder:latest']
     #
     # Testing
     #
