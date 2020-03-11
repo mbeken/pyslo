@@ -8,3 +8,13 @@ steps:
       name: gcr.io/cloud-builders/docker
       dir: cloudbuild/
       args: ['build', '--rm=false', '-t', 'eu.gcr.io/$PROJECT_ID/pyslo-builder', '-f', './Dockerfile', '.']
+    
+    #
+    # Testing
+    #
+
+    - id: test
+      name: eu.gcr.io/$PROJECT_ID/pyslo-builder
+      args: ['./scripts/test.sh']
+      waitFor:
+        - build-builder
