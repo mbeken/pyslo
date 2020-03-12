@@ -39,14 +39,14 @@ steps:
         
     - name: eu.gcr.io/$PROJECT_ID/pyslo-builder:latest
       id: 'push to pypi'
-      entrypoint: 'twine'
+      entrypoint: '/bin/sh twine'
       dir: 'pyslo'
       secretEnv: ['PYPI_PASSWORD']
       # env: ['PYPI_USERNAME=mbeken']
       args:
         - '-c'
         - |
-          upload dist/* -u mbeken -p $$PYPI_PASSWORD
+          twine upload dist/* -u mbeken -p $$PYPI_PASSWORD
 
 images: ['eu.gcr.io/$PROJECT_ID/pyslo-builder:latest']
 secrets:
