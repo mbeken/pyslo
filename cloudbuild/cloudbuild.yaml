@@ -39,11 +39,11 @@ steps:
         
     - name: eu.gcr.io/$PROJECT_ID/pyslo-builder:latest
       id: 'push to pypi'
-      entrypoint: 'twine upload dist/* - mbeken -p $$PYPI_PASSWORD'
-      dir: 'pyslo'
+      entrypoint: 'twine'
+      # dir: 'pyslo'
       secretEnv: ['PYPI_PASSWORD']
       # env: ['PYPI_USERNAME=mbeken']
-      # args: ['upload', 'dist/*', '-u', 'mbeken', '-p', $$PYPI_PASSWORD]
+      args: ['upload', 'dist/*', '-u', 'mbeken', '-p', $$PYPI_PASSWORD]
       waitFor:
         - build-package
 
