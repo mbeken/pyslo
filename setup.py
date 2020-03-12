@@ -6,7 +6,7 @@ setup(
     packages=find_packages(),
     # license='Creative Commons Attribution-Noncommercial-Share Alike license',
     long_description=open('README.md').read(),
-    version='0.0.1',
+    version='0.0.2',
     # use_scm_version = {"root": ".", "relative_to": __file__},
     # setup_requires=['setuptools_scm'],
     classifiers=[
@@ -27,23 +27,12 @@ setup(
         # 'Programming Language :: Python :: 3.3',
         # 'Programming Language :: Python :: 3.4',
         # 'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
+        # 'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ],
     install_requires=[
-        "envparse==0.2.0",
-        "future==0.17.1",
-        "numpy==1.16.2",
-        "pandas==0.24.2",
-        "PyHive==0.6.1",
-        "pymysql==0.9.3",
-        "pyodbc==4.0.26",
-        "python-dateutil==2.8.0",
-        "pytz==2018.9",
-        "sasl==0.2.1",
-        "six==1.12.0",
-        "SQLAlchemy==1.3.2",
-        "thrift==0.11.0",
-        "thrift-sasl==0.3.0",
+        "google-cloud-monitoring",
+        "pandas"
     ],
 
 )
