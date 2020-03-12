@@ -44,6 +44,8 @@ steps:
       secretEnv: ['PYPI_PASSWORD']
       # env: ['PYPI_USERNAME=mbeken']
       args: ['upload', 'dist/*', '-u', 'mbeken', '-p', $$PYPI_PASSWORD]
+      waitFor:
+        -build-package
 
 images: ['eu.gcr.io/$PROJECT_ID/pyslo-builder:latest']
 secrets:
