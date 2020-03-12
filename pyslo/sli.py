@@ -92,17 +92,10 @@ class Sli():
         """
         Calculate sli aggregating over the columns in group_by_labels
         """
-        # good_events = self.metric_data.groupby(
-        #     self.group_by_labels
-        #     ).sum().rename(columns={'value': 'count_good'})
-        # print(good_events)
         good_events = self.metric_data.groupby(
             self.group_by_labels
             ).sum().reset_index().rename(columns={'value': 'count_good'})
 
-        # valid_events = self.metric_data.groupby(
-        #     self.group_by_labels
-        #     ).count().rename(columns={'value': 'count_valid'})['count_valid']
         valid_events = self.metric_data.groupby(
             self.group_by_labels
             ).count().reset_index().rename(columns={'value': 'count_valid'})['count_valid']
@@ -161,16 +154,3 @@ class Sli():
 
     def add_labels(self):
         pass
-    # def error_budget_simple(self):
-    #     budget = self.valid_events * (1-self.slo)
-    #     budget_remaining = budget - (self.valid_events - self.good_events)
-    #     return budget, budget_remaining
-
-    # def error_budget_agg(self):
-    #     data = self.slo_data
-    #     data['budget'] = \
-    #         data['count_valid'] * (1-self.slo)
-    #     data['budget_remaining'] = \
-    #         data['budget'] - (data['count_valid'] - data['count_good'])
-    #     self.slo_data = data
-        # return data
