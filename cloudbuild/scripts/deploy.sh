@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-twine upload --repository pypi --config-file .pypirc dist/* 
+twine upload dist/* -u mbeken -p $PYPI_PASSWORD
