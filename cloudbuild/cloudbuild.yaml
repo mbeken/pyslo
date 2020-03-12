@@ -43,8 +43,7 @@ steps:
       # dir: 'pyslo'
       secretEnv: ['PYPI_PASSWORD']
       # env: ['PYPI_USERNAME=mbeken']
-      # args: ['cloudbuild/scripts/deploy.sh']
-      args: ['twine upload dist/* -u mbeken -p $$PYPI_PASSWORD']
+      args: ['cloudbuild/scripts/deploy.sh']
       waitFor:
         - build-package
 
