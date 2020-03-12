@@ -49,6 +49,6 @@ steps:
 
 images: ['eu.gcr.io/$PROJECT_ID/pyslo-builder:latest']
 secrets:
-  - kmsKeyName: 'projects/$PROJECT_ID/locations/global/keyRings/cloud-build/cryptoKeys/pypi-password'
+  - kmsKeyName: 'projects/$$PROJECT_ID/locations/global/keyRings/cloud-build/cryptoKeys/pypi-password'
     secretEnv:
       PYPI_PASSWORD: 'CiQAOgNfDqbt0KjcP/dh7QJ+ZGag+DZTw9/NHmJ7AL9Dos0ys8QSNQDNmejPkfSs3XG/Z3dRq8Aj4RU8MEg4mecWiBpaIEZRpyipvvJxKATKnsLhfcpDmo8YDOzD'
