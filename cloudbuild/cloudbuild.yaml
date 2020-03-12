@@ -43,7 +43,7 @@ steps:
       # dir: 'pyslo'
       secretEnv: ['PYPI_PASSWORD']
       # env: ['PYPI_USERNAME=mbeken']
-      args: ['upload', 'dist/*', '-u', 'mbeken', '-p', $$PYPI_PASSWORD]
+      args: ['upload', 'dist/*', '-u', 'mbeken', '-p', '$$PYPI_PASSWORD']
       waitFor:
         - build-package
 
