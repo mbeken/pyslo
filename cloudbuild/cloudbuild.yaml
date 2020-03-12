@@ -46,7 +46,7 @@ steps:
       args:
         - '-c'
         - |
-          twine upload dist/* -u mbeken -p $$PYPI_PASSWORD
+          upload dist/* -u mbeken -p $$PYPI_PASSWORD
 
 images: ['eu.gcr.io/$PROJECT_ID/pyslo-builder:latest']
 secrets:
