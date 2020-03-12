@@ -7,3 +7,5 @@ ADD ./requirements-dev.txt .
 RUN pip3 install --trusted-host pypi.python.org \
     pytest \
     twine
+
+ENTRYPOINT [ "/bin/sh" ]
