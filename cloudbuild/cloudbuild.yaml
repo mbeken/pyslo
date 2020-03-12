@@ -37,7 +37,7 @@ steps:
       waitFor:
         - test      
         
-    - name: 'gcr.io/$PROJECT_ID/pypi-tools'
+    - name: eu.gcr.io/$PROJECT_ID/pyslo-builder:latest
       id: 'push to pypi'
       entrypoint: 'twine'
       dir: 'pyslo'
