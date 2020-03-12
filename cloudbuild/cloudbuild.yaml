@@ -42,11 +42,11 @@ steps:
       entrypoint: 'twine'
       dir: 'pyslo'
       secretEnv: ['PYPI_PASSWORD']
-      env: ['PYPI_USERNAME=mbeken']
+      # env: ['PYPI_USERNAME=mbeken']
       args:
         - '-c'
         - |
-          twine upload dist/* -u $PYPI_USERNAME -p $$PYPI_PASSWORD
+          twine upload dist/* -u mbeken -p $$PYPI_PASSWORD
 
 images: ['eu.gcr.io/$PROJECT_ID/pyslo-builder:latest']
 secrets:
