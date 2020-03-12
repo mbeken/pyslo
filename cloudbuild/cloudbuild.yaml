@@ -35,7 +35,7 @@ steps:
       name: eu.gcr.io/$PROJECT_ID/pyslo-builder:latest
       volumes:
         - name: 'vol1'
-          path: '/persistent_volume'
+          path: '/dist'
       args: ['cloudbuild/scripts/build.sh']
       waitFor:
         - test      
@@ -44,7 +44,7 @@ steps:
       id: 'push to pypi'
       volumes:
         - name: 'vol1'
-          path: '/persistent_volume'
+          path: '/dist'
       entrypoint: 'twine'
       dir: 'pyslo'
       secretEnv: ['PYPI_PASSWORD']
