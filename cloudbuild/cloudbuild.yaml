@@ -25,11 +25,18 @@ steps:
     # Testing
     #
 
+    - id: lint
+      name: eu.gcr.io/$PROJECT_ID/pyslo-builder:latest
+      dir: pyslo
+      args: ['flake8']
+      waitFor:
+        - build-builder
+
     - id: test
       name: eu.gcr.io/$PROJECT_ID/pyslo-builder:latest
       args: ['cloudbuild/scripts/test.sh']
       waitFor:
-        - build-builder
+        - lint
 
     - id: build-package
       name: eu.gcr.io/$PROJECT_ID/pyslo-builder:latest
