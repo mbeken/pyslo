@@ -11,7 +11,7 @@ class NoMetricDataAvailable(Exception):
 
 
 class MetricClient():
-    
+
     value_type = None
 
 

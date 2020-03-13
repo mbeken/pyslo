@@ -98,7 +98,9 @@ class Sli():
 
         valid_events = self.metric_data.groupby(
             self.group_by_labels
-            ).count().reset_index().rename(columns={'value': 'count_valid'})['count_valid']
+            ).count().reset_index().rename(
+                columns={'value': 'count_valid'}
+                )['count_valid']
 
         slo_data = good_events.merge(
             valid_events,
