@@ -2,7 +2,7 @@
 Calculate service level objective measurements from metrics stored in common backends in accordance with the logic set out in the [SRE Workbook](https://landing.google.com/sre/workbook/toc/)
 
 # Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
+
 ### Installation process
 ```sh
 pip install pyslo
