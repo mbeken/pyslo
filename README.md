@@ -1,20 +1,65 @@
-# Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+# pyslo 
+Calculate service level objective measurements from metrics stored in common backends in accordance with the logic set out in the [SRE Workbook](https://landing.google.com/sre/workbook/toc/)
 
 # Getting Started
 TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+### Installation process
+```sh
+pip install pyslo
+```
 
 # Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+```sh
+pytest
+```
+# Current Support
+## Providers
+At this time, the [Stackdriver](https://cloud.google.com/monitoring/api/metrics_gcp) backend is supported. Future plans include Prometheus and [Azure Monitoring](https://docs.microsoft.com/en-us/azure/azure-monitor/platform/rest-api-walkthrough)
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+## Metric Types
+### Stackdriver
+*  Boolean
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+# Logic
+
+The library pulls raw timeseries data from the metric provider and performs aggregations in memory. This is in order to standardize the computation across providers.
+## Boolean Metrics
+
+sli = good_events/valid_events
+
+where 
+*  good events = (sum of metric entries == True)
+*  valic_events = (sum of metric entries)
+
+# Examples
+## Google Cloud StackDriver
+This example uses a metric provided by GCP for the Composer service.
+```py
+from google.cloud import monitoring_v3
+from pyslo.metric_client import StackdriverMetricClient
+from pyslo.sli import Sli
+
+PROJECT = <>
+
+metric_client = StackdriverMetricClient(project=PROJECT)
+metric_client.metric_type = 'composer.googleapis.com/environment/healthy'
+metric_client.value_type = monitoring_v3.enums.MetricDescriptor.ValueType.BOOL
+
+sli = Sli(metric_client)
+
+sli.window_length = 30  # days
+sli.slo = 0.99
+
+sli.get_metric_data()
+
+# Calculate sli/slo doing no group bys.
+sli.calculate()
+sli.error_budget()
+print(sli.slo_data)
+
+# Group by some metric labels
+sli.group_by_labels = ['environment_name', 'project_id']
+sli.calculate()
+sli.error_budget()
+print(sli.slo_data)
+```
