@@ -6,6 +6,7 @@ from .metric_client import MetricClient
 
 MetricDescriptor = monitoring_v3.enums.MetricDescriptor
 
+
 class SliException():
 
     class ValueNotSet(Exception):
