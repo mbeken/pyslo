@@ -7,6 +7,7 @@ ADD ./requirements-dev.txt .
 RUN pip3 install --upgrade pip
 RUN pip3 install --trusted-host pypi.python.org \
     pytest \
-    twine
+    twine \
+    yolk3k
 
 ENTRYPOINT [ "/bin/sh" ]

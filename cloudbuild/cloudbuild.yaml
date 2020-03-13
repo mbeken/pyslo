@@ -45,6 +45,7 @@ steps:
       waitFor:
         - build-package
 
+
 images: ['eu.gcr.io/$PROJECT_ID/pyslo-builder:latest']
 secrets:
   - kmsKeyName: 'projects/tidbitz/locations/global/keyRings/cloud-build/cryptoKeys/pypi-password' 
