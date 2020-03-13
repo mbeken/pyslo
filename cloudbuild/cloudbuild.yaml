@@ -48,7 +48,7 @@ steps:
       id: 'push to pypi'
       secretEnv: ['PYPI_PASSWORD']
       env: ['_PYPI_USERNAME=mbeken']
-      args: ['cloudbuild/scripts/deploy.sh']
+      args: ['cloudbuild/scripts/deploy_if_needed.sh']
       waitFor:
         - build-package
 
