@@ -28,7 +28,7 @@ steps:
     - id: lint
       name: eu.gcr.io/$PROJECT_ID/pyslo-builder:latest
       dir: pyslo
-      args: ['flake8']
+      entrypoint: flake8
       waitFor:
         - build-builder
 
