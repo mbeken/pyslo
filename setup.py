@@ -6,7 +6,7 @@ setup(
     packages=find_packages(),
     # license='Creative Commons Attribution-Noncommercial-Share Alike license',
     long_description=open('README.md').read(),
-    version=pyslo.__version__,
+    version='0.0.3',
     # use_scm_version = {"root": ".", "relative_to": __file__},
     # setup_requires=['setuptools_scm'],
     classifiers=[
