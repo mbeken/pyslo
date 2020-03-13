@@ -1,15 +1,16 @@
 steps:
 
     #
-    # Building
+    # Building build container
     #
+    # Try to pull build image
     - name: 'gcr.io/cloud-builders/docker'
       entrypoint: 'bash'
       args:
       - '-c'
       - |
         docker pull eu.gcr.io/$PROJECT_ID/pyslo-builder:latest || exit 0    
-  
+    #  Build image, using cahced image if available.
     - id: build-builder
       name: gcr.io/cloud-builders/docker
       dir: cloudbuild/
@@ -43,16 +44,20 @@ steps:
       args: ['cloudbuild/scripts/build.sh']
       waitFor:
         - test      
-        
+
+    #
+    # Deploy to PyPI if its a new version number
+    #        
+
     - name: eu.gcr.io/$PROJECT_ID/pyslo-builder:latest
       id: 'push to pypi'
       secretEnv: ['PYPI_PASSWORD']
       env: ['_PYPI_USERNAME=mbeken']
-      args: ['cloudbuild/scripts/deploy_if_needed.sh']
+      args: ['cloudbuild/scripts/deploy.sh']
       waitFor:
         - build-package
 
-
+# Define image so that it is pushed (think cached for next build)
 images: ['eu.gcr.io/$PROJECT_ID/pyslo-builder:latest']
 secrets:
   - kmsKeyName: 'projects/tidbitz/locations/global/keyRings/cloud-build/cryptoKeys/pypi-password' 
