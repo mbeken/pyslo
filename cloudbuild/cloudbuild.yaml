@@ -3,6 +3,7 @@ steps:
     #
     # Building build container
     #
+    
     # Try to pull build image
     - name: 'gcr.io/cloud-builders/docker'
       entrypoint: 'bash'
@@ -38,6 +39,11 @@ steps:
       args: ['cloudbuild/scripts/test.sh']
       waitFor:
         - lint
+
+    # 
+    # Build package. Note we build to persistent storage
+    # so that we can the publish to PyPI
+    # 
 
     - id: build-package
       name: eu.gcr.io/$PROJECT_ID/pyslo-builder:latest
