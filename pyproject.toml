@@ -1,0 +1,6 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+
+[tool.autohooks]
+mode = "pipenv"
+pre-commit = ["autohooks.plugins.pylint"]
