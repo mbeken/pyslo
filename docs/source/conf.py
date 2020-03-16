@@ -27,7 +27,7 @@ release = '0.0.2'
 # rtd uses an old version of sphinx that looks for contents.rst
 # however it needs index in order to publish, so manually force
 # to use index.rst _> index.html
-master_doc = 'index'
+# master_doc = 'index'
 
 # -- General configuration ---------------------------------------------------
 
