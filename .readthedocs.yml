@@ -16,5 +16,9 @@ formats: all
 python:
   version: 3.7
   install:
+    - method: pip
+      path: docs/
+      extra_requirements:
+        - readthedocs_requirements.txt
     - method: setuptools
       path: .    
