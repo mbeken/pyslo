@@ -1,6 +1,5 @@
 # pyslo 
 Calculate service level objective measurements from metrics stored in common backends in accordance with the logic set out in the [SRE Workbook](https://landing.google.com/sre/workbook/toc/)
-Dumb update
 
 # Getting Started
 
