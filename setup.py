@@ -33,7 +33,7 @@ setup(
     ],
     install_requires=[
         "google-cloud-monitoring",
-        "pandas"
+        # "pandas"
     ],
 
 )
