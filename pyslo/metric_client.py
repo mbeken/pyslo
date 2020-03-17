@@ -127,7 +127,7 @@ class StackdriverMetricClient(MetricClient):
         """
         We've decided to not care about nano seconds for this implementation.
         """
-        interval = monitoring_v3.types.TimeInterval()
+        interval = monitoring_v3.types.TimeInterval()  # pylint: disable=no-member
         interval.end_time.seconds = int(end_time)
         if start_time:
             interval.start_time.seconds = int(start_time)

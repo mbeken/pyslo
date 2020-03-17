@@ -1,3 +1,24 @@
+"""SLI contains the logic needed to computed SLI/SLO metrics.
+
+Calculate service level objective measurements from metrics stored
+in common backends in accordance with the logic set out in the 
+[SRE Workbook](https://landing.google.com/sre/workbook/toc/)
+
+    Typical usage example:
+
+    sli = Sli(metric_client)
+
+    sli.window_length = 30  # days
+    sli.slo = 0.99
+
+    sli.get_metric_data()
+
+    # Calculate sli/slo doing no group bys.
+    sli.calculate()
+    sli.error_budget()
+    print(sli.slo_data)
+"""
+
 import time
 from datetime import datetime
 from google.cloud import monitoring_v3
@@ -8,28 +29,44 @@ MetricDescriptor = monitoring_v3.enums.MetricDescriptor
 
 
 class SliException():
+    """Class to hold exceptions related to the SLI class specifically
+    """
 
     class ValueNotSet(Exception):
-        pass
+        """Value Not Set exception
+        Used when a class method is called without providing a value for a required class attribute
+        """
+
 
     class UnsupportedMetricType(Exception):
-        pass
+        """Unsupported Metric Type exception
+        Used if the selected metric type is not supported yet by the module
+        """
 
 
 class Sli():
+    """Sli object for calculating sli/slo data
+
+    Attributes:
+        metric_client:  An instance of MetricClient object that will be used
+                        to retrieve timeseries data.
+        metric_data:    dataframe containing timeseries metric data. Either
+                        provided manually or by the get_metric_data method
+        window_end:     End of the window used to retrieve timeseries data
+                        and calculate the sli. As seconds from the epoch,
+                        eg time.time()
+        window_length:  number of days over which to calculate the sli
+        slo:            The service level objective e.g. 0.999
+
+
+    """
 
     def __init__(self, metric_client=MetricClient()):
-        """
-        window_length - number of days over which to calculate the sli
-        """
         self.metric_client = metric_client
         self.metric_data = None
-        self.duration = None
         self.window_end = time.time()
         self.window_length = 0
         self.slo = None
-        self.valid_events = None
-        self.good_events = None
         self.group_by_labels = None
 
     @staticmethod
