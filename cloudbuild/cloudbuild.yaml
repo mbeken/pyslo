@@ -27,18 +27,19 @@ steps:
     # Testing
     #
 
-    - id: lint
-      name: eu.gcr.io/$PROJECT_ID/pyslo-builder:latest
-      dir: pyslo
-      entrypoint: flake8
-      waitFor:
-        - build-builder
+    # - id: lint
+    #   name: eu.gcr.io/$PROJECT_ID/pyslo-builder:latest
+    #   dir: pyslo
+    #   entrypoint: flake8
+    #   waitFor:
+    #     - build-builder
 
     - id: test
       name: eu.gcr.io/$PROJECT_ID/pyslo-builder:latest
       args: ['cloudbuild/scripts/test.sh']
       waitFor:
-        - lint
+        # - lint
+        - build-builder
 
     # 
     # Build package. Note we build to persistent storage
