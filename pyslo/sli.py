@@ -19,7 +19,7 @@ in common backends in accordance with the logic set out in the
     sli.calculate()
 
     sli.error_budget()
-    
+
     print(sli.slo_data)
 """
 
@@ -52,17 +52,16 @@ class Sli():
     """Sli object for calculating sli/slo data
 
     Attributes:
-        metric_client:  An instance of MetricClient object that will be used
-                        to retrieve timeseries data.
-        metric_data:    dataframe containing timeseries metric data. Either
-                        provided manually or by the get_metric_data method
-        window_end:     End of the window used to retrieve timeseries data
-                        and calculate the sli. As seconds from the epoch,
-                        eg time.time()
-        window_length:  number of days over which to calculate the sli
-        slo:            The service level objective e.g. 0.999
-
-
+        metric_client:      An instance of MetricClient object that will be used
+                            to retrieve timeseries data.
+        metric_data:        dataframe containing timeseries metric data. Either
+                            provided manually or by the get_metric_data method
+        window_end:         End of the window used to retrieve timeseries data
+                            and calculate the sli. As seconds from the epoch,
+                            eg time.time()
+        window_length:      number of days over which to calculate the sli
+        slo:                The service level objective e.g. 0.999
+        group_by_labels:    metric labels by which to group sli calculation
     """
 
     def __init__(self, metric_client=MetricClient()):
