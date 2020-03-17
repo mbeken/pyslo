@@ -9,13 +9,17 @@ in common backends in accordance with the logic set out in the
     sli = Sli(metric_client)
 
     sli.window_length = 30  # days
+
     sli.slo = 0.99
 
     sli.get_metric_data()
 
     # Calculate sli/slo doing no group bys.
+
     sli.calculate()
+
     sli.error_budget()
+    
     print(sli.slo_data)
 """
 
