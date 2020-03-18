@@ -1,3 +1,16 @@
+"""Metric Client
+
+Metric clients are used to retrieve time series data from a vairety of
+sources. The MetricClient class can be inherited by provider specific derivatives.
+
+Currently supported:
+    - StackDriver
+
+Planned implementations:
+    - Azure Metric Service
+    - Prometheus
+"""
+
 import time
 import datetime
 import pandas as pd
@@ -7,22 +20,44 @@ MetricDescriptor = monitoring_v3.enums.MetricDescriptor
 
 
 class NoMetricDataAvailable(Exception):
+    """ NoMetricDataAvailable
+
+    Throws if you try to retrieve data using invalid
+    or out of range paramters
+    """
     pass
 
 
 class MetricClient():
+    """Parent object for source specific metric clients.
+
+    Attributes:
+        project:       id of the GCP project hosting Stackdriver
+
+    """
 
     value_type = None
 
+    def timeseries_dataframe(self, end=time.time(), duration=3600):
+        return
+
 
 class StackdriverMetricClient(MetricClient):
+    """Stackdriver Metric Client
+
+    This client will allow you to retrieve metrics from a Stackdriver
+    monitoring instance.
+
+    Attributes:
+        project:       id of the GCP project hosting Stackdriver
+    """
 
     def __init__(self, project):
         """
         resource:- instance of the resource actually retrieved from the API
         """
         self.project = project
-        self.client = monitoring_v3.MetricServiceClient()
+        self._client = monitoring_v3.MetricServiceClient()
         self.metric_type = None
         self.value_type = None
         self.resource = None
@@ -58,8 +93,8 @@ class StackdriverMetricClient(MetricClient):
 
     def get_timeseries_iter(self, end, duration=None):
         interval = StackdriverMetricClient.set_interval(end, end-duration)
-        project_name = self.client.project_path(self.project)
-        results_iter = self.client.list_time_series(
+        project_name = self.c_clientlient.project_path(self.project)
+        results_iter = self.c_clientlient.list_time_series(
             project_name,
             self.filter,
             interval,
