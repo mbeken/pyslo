@@ -74,14 +74,32 @@ class Sli():
 
     @staticmethod
     def days_to_seconds(days):
+        """Convert days into seconds
+
+        Args:
+            days: number of days
+
+        Returns:
+            The corresponding number of seconds
+        """
         return days*24*60*60
 
     @property
     def window_length_seconds(self):
+        """Access the window_length in seconds
+
+        Returns:
+            The window length, stored in days, as seconds
+        """
         return Sli.days_to_seconds(self.window_length)
 
     @property
     def window_start(self):
+        """Derive window start from end and duration
+
+        Returns:
+            The start of the window in seconds from epoch
+        """
         return self.window_end - self.window_length_seconds
 
     def calculate(self):

@@ -1,3 +1,9 @@
+"""Tests for pyslo.sli
+"""
+# pylint: disable=missing-function-docstring
+# pylint: disable=redefined-outer-name
+# pylint: disable=wrong-import-position
+
 import os
 import sys
 import time
@@ -32,6 +38,8 @@ def test_days_to_seconds():
 
 
 def test_window_length_seconds(sli_instance):
+    assert sli_instance.window_length_seconds == 0
+
     sli_instance.window_length = 10
     assert sli_instance.window_length_seconds == 864000
 
@@ -56,7 +64,8 @@ def test_calculate(sli_instance):
 
     with pytest.raises(sli.SliException.UnsupportedMetricType):
         sli_instance.calculate()
-    
+
+
 
 # def test_sli_get_bool_data(sli_instance):
 #     sample_df = pd.read_csv('./tests/data/sample_bool.csv', parse_dates=[0,1])

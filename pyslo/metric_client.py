@@ -223,7 +223,7 @@ class StackdriverMetricClient(MetricClient):
             end_time:       the end of the period, as the time in seconds since the epoch.
                             If a float is provided it is converted to an int regardless
                             (which will round the float down).
-            end_time_nanos: Optional. Provide the number of nano seconds that will be added 
+            end_time_nanos: Optional. Provide the number of nano seconds that will be added
                             to the end_time.
             start_time:     the start of the period in seconds since the epoch.
 

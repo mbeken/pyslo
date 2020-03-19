@@ -1,14 +1,19 @@
+"""Tests for pyslo.metric_client
+"""
+# pylint: disable=missing-function-docstring
+# pylint: disable=redefined-outer-name
+# pylint: disable=wrong-import-position
+
 import sys
 import os
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
     )
 import pytest
-import datetime
 from google.cloud import monitoring_v3
 import google.protobuf as protobuf
-from pyslo import sli
 from pyslo.metric_client import StackdriverMetricClient
+
 
 @pytest.fixture
 def stackdriver_metric_client():
@@ -37,7 +42,7 @@ def test_get_point_value(stackdriver_metric_client):
 
     point_value.bool_value = True
     assert stackdriver_metric_client.get_point_value(point_value)
-    
+
     point_value.bool_value = False
     assert not stackdriver_metric_client.get_point_value(point_value)
 
@@ -45,14 +50,15 @@ def test_convert_point_time():
     timestamp = protobuf.timestamp_pb2.Timestamp()
     timestamp.seconds = 1584627079
     timestamp.nanos = 123456789
-    dt = StackdriverMetricClient.convert_point_time(timestamp, as_timestamp=False)
-    assert dt.day == 19
-    assert dt.month == 3
-    assert dt.year == 2020
-    assert dt.hour == 14
-    assert dt.minute == 11
-    assert dt.second == 19
-    assert dt.microsecond == 123457
+
+    d_t = StackdriverMetricClient.convert_point_time(timestamp, as_timestamp=False)
+    assert d_t.day == 19
+    assert d_t.month == 3
+    assert d_t.year == 2020
+    assert d_t.hour == 14
+    assert d_t.minute == 11
+    assert d_t.second == 19
+    assert d_t.microsecond == 123457
 
     tsp = StackdriverMetricClient.convert_point_time(timestamp, as_timestamp=True)
     assert tsp == 1584627079.123456789
