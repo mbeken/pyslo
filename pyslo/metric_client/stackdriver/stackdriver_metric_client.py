@@ -1,51 +1,15 @@
-"""Metric Client
-
-Metric clients are used to retrieve time series data from a vairety of
-sources. The MetricClient class can be inherited by provider specific derivatives.
-
-Currently supported:
-    - StackDriver
-        Client library is in alpha. Using version v3:-
-            https://googleapis.dev/python/monitoring/latest/gapic/v3/api.html
-
-Planned implementations:
-    - Azure Metric Service
-    - Prometheus
-"""
-
 import time
 import datetime
 import pytz
 import pandas as pd
 from google.cloud import monitoring_v3
+from ..metric_client import MetricClient
+from ..metric_client import NoMetricDataAvailable
+from .stackdriver_filter import StackDriverFilter
 
 MetricDescriptor = monitoring_v3.enums.MetricDescriptor
 
-
-class NoMetricDataAvailable(Exception):
-    """ NoMetricDataAvailable
-
-    Thrown if you try to retrieve data using invalid
-    or out of range parameters
-    """
-
-
-class MetricClient():
-    """Parent object for source specific metric clients.
-
-    Attributes:
-        project:       id of the GCP project hosting Stackdriver
-
-    """
-
-    value_type = None
-
-    def timeseries_dataframe(self):
-        """Retrieve data from time series db and return as a pandas dataframe
-        """
-        return
-
-
+  
 class StackdriverMetricClient(MetricClient):
     """Stackdriver Metric Client
 
@@ -66,10 +30,30 @@ class StackdriverMetricClient(MetricClient):
 
     def __init__(self, project):
         self.project = project
-        self.metric_type = None
+        self._metric_type = None
+        self._resource_type = None
         self.value_type = None
+        self._filter = StackDriverFilter()
 
         self._client = monitoring_v3.MetricServiceClient()
+
+    @property
+    def metric_type(self):
+        return self._metric_type
+
+    @metric_type.setter
+    def metric_type(self, metric_type):
+        self._filter.metric_type = metric_type
+        self._metric_type = metric_type
+
+    @property
+    def resource_type(self):
+        return self._resource_type
+
+    @resource_type.setter
+    def resource_type(self, resource_type):
+        self._filter.resource_type = resource_type
+        self._resource_type = resource_type
 
     def timeseries_dataframe(self, end=time.time(), end_nanos=0, duration=3600):
         """Fetches and returns a dataframe of timeseries data
@@ -95,22 +79,6 @@ class StackdriverMetricClient(MetricClient):
         materialized = self.fetch_iter_results(iterator)
         return self.to_df(materialized)
 
-    @property
-    def filter(self):
-        """Formats a metric filter
-
-        Returns:
-            A string that can be passed as the filter_ arg during a MetricServiceClient
-            list_time_series call.  The filter specifies which time series data is being requested.
-            The filter must specify a single metric type, and can additionally
-            specify metric labels and other information. For example:
-
-            metric.type = "compute.googleapis.com/instance/cpu/usage_time" AND
-                metric.labels.instance_name = "my-instance-name"
-
-        Todo: - for now we are just making the simplest case!
-        """
-        return f'metric.type = "{self.metric_type}"'
 
     def get_timeseries_iter(self, interval):
         """Retrieves timeseries data from Stackdriver
@@ -124,7 +92,7 @@ class StackdriverMetricClient(MetricClient):
         project_name = self._client.project_path(self.project)
         results_iter = self._client.list_time_series(
             project_name,
-            self.filter,
+            self._filter.string,
             interval,
             monitoring_v3.enums.ListTimeSeriesRequest.TimeSeriesView.FULL
         )
@@ -152,7 +120,6 @@ class StackdriverMetricClient(MetricClient):
         points = list()
         for result in results:
             labels = self.get_labels(result)
-            print(type(labels))
             for point in result.points:
                 start_time = self.convert_point_time(
                     point.interval.start_time,
@@ -192,7 +159,7 @@ class StackdriverMetricClient(MetricClient):
     @staticmethod
     def convert_point_time(point_time, as_timestamp):
         """Convert a TypedValues time to a datetime value
-        
+
         Args:
             point_time: google.cloud.monitoring_v3.types.TypedValue
 
@@ -244,3 +211,4 @@ class StackdriverMetricClient(MetricClient):
         if start_time:
             interval.start_time.seconds = int(start_time)
         return interval
+
