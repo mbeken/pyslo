@@ -100,16 +100,29 @@ class StackdriverMetricClient(MetricClient):
 
     @staticmethod
     def get_labels(result):
-        """Extract the resource labels from the result object
+        """Extract the resource and labels from the result object
 
         Args:
             result:
 
         Returns:
-            a 'google.protobuf.pyext._message.ScalarMapContainer'. Basically
-            a dict type object with the labels.
+            a dict type object with the labels. 
+            Resource labels have the key resource__labelname.
+            Metric labels have the key metric__labelname.
         """
-        return result.resource.labels
+        print(type(result))
+        resource_labels = result.resource.labels
+        metric_labels = result.metric.labels
+        r = StackdriverMetricClient.prepend_label_names(resource_labels, 'resource')
+        m = StackdriverMetricClient.prepend_label_names(metric_labels, 'metric')
+
+        return {**r, **m}
+
+    @staticmethod
+    def prepend_label_names(labels, prepend):
+        x = [(f'{prepend}__{k}', v) for k, v in labels.items()]
+        return dict(x)
+
 
     def to_df(self, results):
         """
@@ -132,10 +145,10 @@ class StackdriverMetricClient(MetricClient):
                 )
 
                 point_dict = {
-                        'start_timestamp': start_time,
-                        'end_timestamp': end_time,
-                        'value': self.get_point_value(point.value)
-                        }
+                    'start_timestamp': start_time,
+                    'end_timestamp': end_time,
+                    'value': self.get_point_value(point.value)
+                    }
                 point_dict.update(labels)
                 points.append(point_dict)
         if len(points) == 0:
