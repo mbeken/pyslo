@@ -1,0 +1,4 @@
+get metric labels
+    - metric__label_name
+    have that transofmration as a function so when they pass them in
+filter by resource as well as type

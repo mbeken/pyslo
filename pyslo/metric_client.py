@@ -108,7 +108,7 @@ class StackdriverMetricClient(MetricClient):
             metric.type = "compute.googleapis.com/instance/cpu/usage_time" AND
                 metric.labels.instance_name = "my-instance-name"
 
-        Todo: - for now we are just making the simplest case filter!
+        Todo: - for now we are just making the simplest case!
         """
         return f'metric.type = "{self.metric_type}"'
 
