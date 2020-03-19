@@ -16,6 +16,7 @@ from pyslo.metric_client.stackdriver import StackDriverFilter
 def stackdriver_filter():
     return StackDriverFilter()
 
+
 def test_validate_types_set(stackdriver_filter):
     with pytest.raises(ValueError):
         stackdriver_filter.validate_types_set()

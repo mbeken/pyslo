@@ -22,9 +22,20 @@ def stackdriver_metric_client():
     """
     return StackdriverMetricClient(None)
 
+def test_metric_type(stackdriver_metric_client):
+    stackdriver_metric_client.metric_type = 'something_crazy'
+    assert stackdriver_metric_client.metric_type == 'something_crazy'
+    assert stackdriver_metric_client._filter.metric_type == 'something_crazy'
+
+def test_resource_type(stackdriver_metric_client):
+    stackdriver_metric_client.resource_type = 'a_crazy_resource'
+    assert stackdriver_metric_client.resource_type == 'a_crazy_resource'
+    assert stackdriver_metric_client._filter.resource_type == 'a_crazy_resource'    
+
 def test_filter(stackdriver_metric_client):
     stackdriver_metric_client.metric_type = 'composer.googleapis.com/environment/healthy'
-    assert stackdriver_metric_client.filter == 'metric.type = "composer.googleapis.com/environment/healthy"'
+    assert stackdriver_metric_client._filter.string == 'metric.type="composer.googleapis.com/environment/healthy" '
+    
 
 def test_set_interval(stackdriver_metric_client):
     end_time = 123456

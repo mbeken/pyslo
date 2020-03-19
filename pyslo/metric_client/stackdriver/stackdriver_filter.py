@@ -1,10 +1,15 @@
+"""Stackdriver Filter
+
+"""
+
 class StackDriverFilter():
     """Hold variables and generate filter strings.
-    metric.type="composer.googleapis.com/environment/healthy"
-    resource.type="cloud_composer_environment"
-    resource.label."project_id"="slb-it-op-dev"
-    metric.label."image_version"="composer-1-7-1-airflow-1-10-2"
-    resource.label."location"="europe-west1"
+
+    Args:
+        metric_type: string. e.g. composer.googleapis.com/environment/healthy
+        resource_type: string. e.g. cloud_composer_environment
+        resource_labels: Not implemented
+        metric_labels: Not implemented
     """
 
     def __init__(self):
@@ -36,8 +41,12 @@ class StackDriverFilter():
         return filter_string
 
     def validate_types_set(self):
+        """Simple validation
+
+        Checks that at least metric_type or resource_type are set.
+        """
         if not self.metric_type and not self.resource_type:
             raise ValueError("Either metric_type or resource_type must be set")
-        else:
-            return True
+
+        return True
   
