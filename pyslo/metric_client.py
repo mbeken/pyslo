@@ -5,6 +5,8 @@ sources. The MetricClient class can be inherited by provider specific derivative
 
 Currently supported:
     - StackDriver
+        Client library is in alpha. Using version v3:-
+            https://googleapis.dev/python/monitoring/latest/gapic/v3/api.html
 
 Planned implementations:
     - Azure Metric Service
@@ -12,6 +14,7 @@ Planned implementations:
 """
 
 import time
+import pytz
 import datetime
 import pandas as pd
 from google.cloud import monitoring_v3
@@ -22,10 +25,9 @@ MetricDescriptor = monitoring_v3.enums.MetricDescriptor
 class NoMetricDataAvailable(Exception):
     """ NoMetricDataAvailable
 
-    Throws if you try to retrieve data using invalid
-    or out of range paramters
+    Thrown if you try to retrieve data using invalid
+    or out of range parameters
     """
-    pass
 
 
 class MetricClient():
@@ -38,7 +40,9 @@ class MetricClient():
 
     value_type = None
 
-    def timeseries_dataframe(self, end=time.time(), duration=3600):
+    def timeseries_dataframe(self):
+        """Retrieve data from time series db and return as a pandas dataframe
+        """
         return
 
 
@@ -49,52 +53,76 @@ class StackdriverMetricClient(MetricClient):
     monitoring instance.
 
     Attributes:
-        project:       id of the GCP project hosting Stackdriver
+        project:        string. id of the GCP project hosting Stackdriver
+        metric_type:    string. the metric type as defined in stackdriver.
+                        e.g. composer.googleapis.com/environment/healthy
+                        This is most easily found by locating the metric in StackDriver Metrics
+                        Explorer, then viewing as JSON.
+                        The metric type is found as part of the timeSeriesFilter.
+        value_type:     metric type, as a type defined in google.cloud.monitoring_v3
+                        e.g. monitoring_v3.enums.MetricDescriptor.ValueType.BOOL
+
     """
 
     def __init__(self, project):
-        """
-        resource:- instance of the resource actually retrieved from the API
-        """
         self.project = project
-        self._client = monitoring_v3.MetricServiceClient()
         self.metric_type = None
         self.value_type = None
-        self.resource = None
 
-    def timeseries_dataframe(self, end=time.time(), duration=3600):
-        """
+        self._client = monitoring_v3.MetricServiceClient()
+
+    def timeseries_dataframe(self, end=time.time(), end_nanos=0, duration=3600):
+        """Fetches and returns a dataframe of timeseries data
+
         By default this will retrieve the last hours worth of data.
         By specifying duration you will get that amount of data from now back.
         If you want a custom range then specify both end and duration.
 
-        end:- the end of the period, as the time in seconds since the epoch as
-        a floating point number.
-        duration:- length of the period to retrieve in seconds
+        Args:
+            end:        Optional. A float that represents the end of the period, as the time in
+                        seconds since the epoch. default is now. Value will be converted to an
+                        integer second. Use end_nanos if you need nanosecond precision.
+            end_nanos:  Optional. Integer number of nano seconds that will be added to the end value.
+                        deafult = 0
+            duration:   Optional. An integer length of the period to retrieve in seconds.
+                        default = 3600s
+
+        Returns:
+            A pandas dataframe
         """
-        iter = self.get_timeseries_iter(end, duration=duration)
-        materialized = StackdriverMetricClient.fetch_iter_results(iter)
+        interval = self.set_interval(end, start_time=(end - duration))
+        iterator = self.get_timeseries_iter(interval)
+        materialized = self.fetch_iter_results(iterator)
         return self.to_df(materialized)
 
     @property
     def filter(self):
-        """
-        Return a monitoring filter that specifies which time series should be
-        returned.
-        The filter must specify a single metric type, and can additionally
-        specify metric labels and other information. For example:
+        """Formats a metric filter
 
-        metric.type = "compute.googleapis.com/instance/cpu/usage_time" AND
-            metric.labels.instance_name = "my-instance-name"
+        Returns:
+            A string that can be passed as the filter_ arg during a MetricServiceClient
+            list_time_series call.  The filter specifies which time series data is being requested.
+            The filter must specify a single metric type, and can additionally
+            specify metric labels and other information. For example:
+
+            metric.type = "compute.googleapis.com/instance/cpu/usage_time" AND
+                metric.labels.instance_name = "my-instance-name"
 
         Todo: - for now we are just making the simplest case filter!
         """
         return f'metric.type = "{self.metric_type}"'
 
-    def get_timeseries_iter(self, end, duration=None):
-        interval = StackdriverMetricClient.set_interval(end, end-duration)
-        project_name = self.c_clientlient.project_path(self.project)
-        results_iter = self.c_clientlient.list_time_series(
+    def get_timeseries_iter(self, interval):
+        """Retrieves timeseries data from Stackdriver
+
+        Args:
+            interval: google.cloud.monitoring_v3.types.TimeInterval()
+
+        Returns:
+            A page or results iterator.
+        """
+        project_name = self._client.project_path(self.project)
+        results_iter = self._client.list_time_series(
             project_name,
             self.filter,
             interval,
@@ -102,9 +130,9 @@ class StackdriverMetricClient(MetricClient):
         )
         return results_iter
 
-    def get_labels(self, result):
-        """
-        Return the resource labels from the result object
+    @staticmethod
+    def get_labels(result):
+        """Return the resource labels from the result object
         """
         return result.resource.labels
 
@@ -118,12 +146,14 @@ class StackdriverMetricClient(MetricClient):
         for result in results:
             labels = self.get_labels(result)
             for point in result.points:
-                start_time = StackdriverMetricClient.convert_point_time(
-                    point.interval.start_time
+                start_time = self.convert_point_time(
+                    point.interval.start_time,
+                    as_timestamp=False
                     )
 
-                end_time = StackdriverMetricClient.convert_point_time(
-                    point.interval.end_time
+                end_time = self.convert_point_time(
+                    point.interval.end_time,
+                    as_timestamp=False
                 )
 
                 point_dict = {
@@ -139,31 +169,70 @@ class StackdriverMetricClient(MetricClient):
         return pd.DataFrame(points)
 
     def get_point_value(self, point_value):
+        """EXtract value from point_value object
+
+        Args:
+            point_value: instance of google.cloud.monitoring_v3.types.TypedValue
+        Returns:
+            The value of the TypedValue object
+        """
         if self.value_type == MetricDescriptor.ValueType.BOOL:
             return int(point_value.bool_value)
         else:
             raise Exception
 
     @staticmethod
-    def convert_point_time(point_time):
+    def convert_point_time(point_time, as_timestamp):
+        """Convert a TypedValues time to a datetime value
+        
+        Args:
+            point_time: google.cloud.monitoring_v3.types.TypedValue
+
+        Returns:
+            datetime object. Note datetime object only supports microsecond
+            accuracy.
+        """
         seconds = point_time.seconds
         nanos = point_time.nanos
-        return datetime.datetime.fromtimestamp(seconds + nanos/10**9)
+        if as_timestamp:
+            return seconds + nanos/10**9
+        else:
+            return datetime.datetime.fromtimestamp(seconds + nanos/10**9, tz=pytz.UTC)
+
 
     @staticmethod
-    def fetch_iter_results(iter):
+    def fetch_iter_results(results_iterator):
         results = list()
-        for result in iter:
+        for result in results_iterator:
             results.append(result)
         return results
 
+
     @staticmethod
-    def set_interval(end_time, start_time=None):
-        """
-        We've decided to not care about nano seconds for this implementation.
+    def set_interval(end_time, end_time_nanos=0, start_time=None):
+        """Create a TimeInterval object based on input start and end times
+
+        For GAUGE kind metrics, a time interval could be provided to the API with no start_time
+        specified. In this case api client assumes start=end and will try to retrieve a single
+        data point. In this application there is not much use for that, but its supported in case
+        you are trying to retrieve a single GAUGE metric point.
+        We support setting the end time nanoseconds, which is unlikely to be needed in an SLO
+        calculation but we do not bother to set the start_nanos.
+
+        Args:
+            end_time:       the end of the period, as the time in seconds since the epoch.
+                            If a float is provided it is converted to an int regardless
+                            (which will round the float down).
+            end_time_nanos: Optional. Provide the number of nano seconds that will be added 
+                            to the end_time.
+            start_time:     the start of the period in seconds since the epoch.
+
+        Returns:
+            An instance of google.cloud.monitoring_v3.types.TimeInterval()
         """
         interval = monitoring_v3.types.TimeInterval()  # pylint: disable=no-member
         interval.end_time.seconds = int(end_time)
+        interval.end_time.nanos = int(end_time_nanos)
         if start_time:
             interval.start_time.seconds = int(start_time)
         return interval
