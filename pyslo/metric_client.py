@@ -14,8 +14,8 @@ Planned implementations:
 """
 
 import time
-import pytz
 import datetime
+import pytz
 import pandas as pd
 from google.cloud import monitoring_v3
 
@@ -82,15 +82,15 @@ class StackdriverMetricClient(MetricClient):
             end:        Optional. A float that represents the end of the period, as the time in
                         seconds since the epoch. default is now. Value will be converted to an
                         integer second. Use end_nanos if you need nanosecond precision.
-            end_nanos:  Optional. Integer number of nano seconds that will be added to the end value.
-                        deafult = 0
+            end_nanos:  Optional. Integer number of nano seconds that will be added to the end
+                        value. deafult = 0
             duration:   Optional. An integer length of the period to retrieve in seconds.
                         default = 3600s
 
         Returns:
             A pandas dataframe
         """
-        interval = self.set_interval(end, start_time=(end - duration))
+        interval = self.set_interval(end, end_nanos, start_time=(end - duration))
         iterator = self.get_timeseries_iter(interval)
         materialized = self.fetch_iter_results(iterator)
         return self.to_df(materialized)
@@ -132,7 +132,14 @@ class StackdriverMetricClient(MetricClient):
 
     @staticmethod
     def get_labels(result):
-        """Return the resource labels from the result object
+        """Extract the resource labels from the result object
+
+        Args:
+            result:
+
+        Returns:
+            a 'google.protobuf.pyext._message.ScalarMapContainer'. Basically
+            a dict type object with the labels.
         """
         return result.resource.labels
 
@@ -145,6 +152,7 @@ class StackdriverMetricClient(MetricClient):
         points = list()
         for result in results:
             labels = self.get_labels(result)
+            print(type(labels))
             for point in result.points:
                 start_time = self.convert_point_time(
                     point.interval.start_time,
