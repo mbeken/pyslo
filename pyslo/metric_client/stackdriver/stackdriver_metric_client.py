@@ -79,23 +79,6 @@ class StackdriverMetricClient(MetricClient):
         materialized = self.fetch_iter_results(iterator)
         return self.to_df(materialized)
 
-    # @property
-    # def metric_filter_string(self):
-    #     """Formats a metric filter
-
-    #     Returns:
-    #         A string that can be passed as the filter_ arg during a MetricServiceClient
-    #         list_time_series call.  The filter specifies which time series data is being requested.
-    #         The filter must specify a single metric type, and can additionally
-    #         specify metric labels and other information. For example:
-
-    #         metric.type = "compute.googleapis.com/instance/cpu/usage_time" AND
-    #             metric.labels.instance_name = "my-instance-name"
-
-    #     Todo: - for now we are just making the simplest case!
-    #     """
-        
-    #     return f'metric.type = "{self._metric_type}"'
 
     def get_timeseries_iter(self, interval):
         """Retrieves timeseries data from Stackdriver
@@ -176,7 +159,7 @@ class StackdriverMetricClient(MetricClient):
     @staticmethod
     def convert_point_time(point_time, as_timestamp):
         """Convert a TypedValues time to a datetime value
-        
+
         Args:
             point_time: google.cloud.monitoring_v3.types.TypedValue
 
