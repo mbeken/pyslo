@@ -1,51 +1,14 @@
-"""Metric Client
-
-Metric clients are used to retrieve time series data from a vairety of
-sources. The MetricClient class can be inherited by provider specific derivatives.
-
-Currently supported:
-    - StackDriver
-        Client library is in alpha. Using version v3:-
-            https://googleapis.dev/python/monitoring/latest/gapic/v3/api.html
-
-Planned implementations:
-    - Azure Metric Service
-    - Prometheus
-"""
-
 import time
 import datetime
 import pytz
 import pandas as pd
 from google.cloud import monitoring_v3
+from ..metric_client import MetricClient
+from ..metric_client import NoMetricDataAvailable
 
 MetricDescriptor = monitoring_v3.enums.MetricDescriptor
 
-
-class NoMetricDataAvailable(Exception):
-    """ NoMetricDataAvailable
-
-    Thrown if you try to retrieve data using invalid
-    or out of range parameters
-    """
-
-
-class MetricClient():
-    """Parent object for source specific metric clients.
-
-    Attributes:
-        project:       id of the GCP project hosting Stackdriver
-
-    """
-
-    value_type = None
-
-    def timeseries_dataframe(self):
-        """Retrieve data from time series db and return as a pandas dataframe
-        """
-        return
-
-
+  
 class StackdriverMetricClient(MetricClient):
     """Stackdriver Metric Client
 
@@ -152,7 +115,6 @@ class StackdriverMetricClient(MetricClient):
         points = list()
         for result in results:
             labels = self.get_labels(result)
-            print(type(labels))
             for point in result.points:
                 start_time = self.convert_point_time(
                     point.interval.start_time,
@@ -244,3 +206,4 @@ class StackdriverMetricClient(MetricClient):
         if start_time:
             interval.start_time.seconds = int(start_time)
         return interval
+

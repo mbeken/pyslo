@@ -12,7 +12,7 @@ sys.path.insert(
 import pytest
 from google.cloud import monitoring_v3
 import google.protobuf as protobuf
-from pyslo.metric_client import StackdriverMetricClient
+from pyslo.metric_client.stackdriver import StackdriverMetricClient
 
 
 @pytest.fixture

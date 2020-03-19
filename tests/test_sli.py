@@ -14,7 +14,7 @@ sys.path.insert(
     )
 
 from pyslo import sli
-from pyslo.metric_client import StackdriverMetricClient
+from pyslo.metric_client.stackdriver import StackdriverMetricClient
 
 
 @pytest.fixture
