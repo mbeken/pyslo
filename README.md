@@ -31,35 +31,3 @@ where
 *  good events = (sum of metric entries == True)
 *  valic_events = (sum of metric entries)
 
-# Examples
-## Google Cloud StackDriver
-This example uses a metric provided by GCP for the Composer service.
-```py
-from google.cloud import monitoring_v3
-from pyslo.metric_client import StackdriverMetricClient
-from pyslo.sli import Sli
-
-PROJECT = <>
-
-metric_client = StackdriverMetricClient(project=PROJECT)
-metric_client.metric_type = 'composer.googleapis.com/environment/healthy'
-metric_client.value_type = monitoring_v3.enums.MetricDescriptor.ValueType.BOOL
-
-sli = Sli(metric_client)
-
-sli.window_length = 30  # days
-sli.slo = 0.99
-
-sli.get_metric_data()
-
-# Calculate sli/slo doing no group bys.
-sli.calculate()
-sli.error_budget()
-print(sli.slo_data)
-
-# Group by some metric labels
-sli.group_by_labels = ['environment_name', 'project_id']
-sli.calculate()
-sli.error_budget()
-print(sli.slo_data)
-```
