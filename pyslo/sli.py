@@ -70,7 +70,26 @@ class Sli():
         self.window_end = time.time()
         self.window_length = 0
         self.slo = None
-        self.group_by_labels = None
+        self.group_by_resource_labels = []
+        self.group_by_metric_labels = []
+
+    @property
+    def group_by_labels(self):
+        """Combine the metric and resource labels
+
+        Returns:
+            A list of the resource and metric labels to group by, based on
+            combining group_by_resource_labels and group_by_metric_labels.
+            During the combination of the lists, the label names are prepended,
+            according to the prepend_key function in the associated metric client.
+        """
+        resource_labels = [
+            self.metric_client.prepend_key(l, 'resource') for l in self.group_by_resource_labels
+            ]
+        metric_labels = [
+            self.metric_client.prepend_key(l, 'metric') for l in self.group_by_metric_labels
+            ]
+        return resource_labels + metric_labels
 
     @staticmethod
     def days_to_seconds(days):
@@ -141,7 +160,7 @@ class Sli():
 
         """
         # self.get_metric_data()
-        if self.group_by_labels:
+        if len(self.group_by_metric_labels) > 0 or len(self.group_by_resource_labels) > 0:
             return self.calc_bool_agg()
         else:
             return self.calc_bool_simple()

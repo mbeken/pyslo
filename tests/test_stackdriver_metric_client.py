@@ -12,7 +12,7 @@ sys.path.insert(
 import pytest
 from google.cloud import monitoring_v3
 import google.protobuf as protobuf
-from pyslo.metric_client import StackdriverMetricClient
+from pyslo.metric_client.stackdriver import StackdriverMetricClient
 
 
 @pytest.fixture
@@ -22,9 +22,20 @@ def stackdriver_metric_client():
     """
     return StackdriverMetricClient(None)
 
+def test_metric_type(stackdriver_metric_client):
+    stackdriver_metric_client.metric_type = 'something_crazy'
+    assert stackdriver_metric_client.metric_type == 'something_crazy'
+    assert stackdriver_metric_client._filter.metric_type == 'something_crazy'
+
+def test_resource_type(stackdriver_metric_client):
+    stackdriver_metric_client.resource_type = 'a_crazy_resource'
+    assert stackdriver_metric_client.resource_type == 'a_crazy_resource'
+    assert stackdriver_metric_client._filter.resource_type == 'a_crazy_resource'    
+
 def test_filter(stackdriver_metric_client):
     stackdriver_metric_client.metric_type = 'composer.googleapis.com/environment/healthy'
-    assert stackdriver_metric_client.filter == 'metric.type = "composer.googleapis.com/environment/healthy"'
+    assert stackdriver_metric_client._filter.string == 'metric.type="composer.googleapis.com/environment/healthy" '
+    
 
 def test_set_interval(stackdriver_metric_client):
     end_time = 123456
@@ -62,3 +73,37 @@ def test_convert_point_time():
 
     tsp = StackdriverMetricClient.convert_point_time(timestamp, as_timestamp=True)
     assert tsp == 1584627079.123456789
+
+def test_prepend_label_names():
+    labels = {
+        'key':'value'
+    }
+    prepended_labels = StackdriverMetricClient.prepend_label_names(labels, 'pre')
+    assert prepended_labels == {
+        'pre__key':'value'
+    }
+
+
+def test_prepend_key():
+    key = 'my_key'
+    prepend = 'before'
+    expected = 'before__my_key'
+    assert StackdriverMetricClient.prepend_key(key, prepend) == expected
+
+def test_get_labels():
+    result = monitoring_v3.types.TimeSeries()  # pylint: disable=no-member
+    result.resource.labels['r1'] = 'r_value1'
+    result.resource.labels['r2'] = 'r_value2'
+    assert StackdriverMetricClient.get_labels(result) == {
+        'resource__r1':'r_value1',
+        'resource__r2':'r_value2'
+        }
+
+    result.metric.labels['m1'] = 'm_value1'
+    result.metric.labels['m2'] = 'm_value2'
+    assert StackdriverMetricClient.get_labels(result) == {
+        'resource__r1':'r_value1',
+        'resource__r2':'r_value2',
+        'metric__m1':'m_value1',
+        'metric__m2':'m_value2',
+    }
