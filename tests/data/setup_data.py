@@ -2,24 +2,36 @@ import os
 import sys
 import pandas as pd
 from google.cloud import monitoring_v3
+import datetime
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-from sli.metric_client import StackdriverMetricClient
-from sli import sli
+from pyslo.metric_client.stackdriver import StackdriverMetricClient
+from pyslo import sli
 
-metric_client = StackdriverMetricClient(project='slb-ads-eds-dev')
+TEST_DATA_PATH = './tests/data'
+
+metric_client = StackdriverMetricClient(project='slb-it-op-dev')
 metric_client.metric_type = 'composer.googleapis.com/environment/healthy'
 metric_client.value_type = monitoring_v3.enums.MetricDescriptor.ValueType.BOOL
 
 
-sli_ = sli.Sli(metric_client)
-sli_.window_length = 30
-# sli_.get_metric_data()
-# sli_.metric_data.to_csv('one_month.csv', index=False)
-sample_df = pd.read_csv('one_month.csv', parse_dates=[0,1])
+sli = sli.Sli(metric_client)
+sli.window_length = 1
+sli.slo = 0.99
+# sli.get_metric_data()
+# sli.metric_data.to_csv('one_day_bool.csv', index=False)
+sample_df = pd.read_csv(f'{TEST_DATA_PATH}/one_day_bool.csv', parse_dates=[0,1])
+window_end = sample_df['end_timestamp'].max()
+window_length = 1
 
-sli_.metric_data = sample_df
+sli.window_end = datetime.datetime.timestamp(window_end)
+sli.window_length = 1
+sli.metric_data = sample_df
+sli.group_by_resource_labels = ['environment_name', 'project_id']
+sli.group_by_metric_labels = ['image_version']
+sli.calculate()
+# sli.slo_data.to_csv(f'{TEST_DATA_PATH}/one_day_bool_agg_result.csv')
 
-# sli_.get_bool_data()
-# sli_.good.to_csv('./tests/data/sample_good.csv')
-# sli_.valid.to_csv('./tests/data/sample_valid.csv')
+error = sli.error_budget()
+error.to_csv(f'{TEST_DATA_PATH}/one_day_bool_agg_error_budget.csv')
+

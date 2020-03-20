@@ -1,3 +1,6 @@
+"""Stackdriver specific MetricClient
+"""
+
 import time
 import datetime
 import pytz
@@ -9,7 +12,7 @@ from .stackdriver_filter import StackDriverFilter
 
 MetricDescriptor = monitoring_v3.enums.MetricDescriptor
 
-  
+
 class StackdriverMetricClient(MetricClient):
     """Stackdriver Metric Client
 
@@ -81,8 +84,7 @@ class StackdriverMetricClient(MetricClient):
         """
         interval = self.set_interval(end, end_nanos, start_time=(end - duration))
         iterator = self.get_timeseries_iter(interval)
-        materialized = self.fetch_iter_results(iterator)
-        return self.to_df(materialized)
+        return self.to_df(iterator)
 
 
     def get_timeseries_iter(self, interval):
@@ -105,7 +107,7 @@ class StackdriverMetricClient(MetricClient):
 
     @staticmethod
     def get_labels(result):
-        """Extract the resource and labels from the result object
+        """Extract the resource and labels from the result object.
 
         Args:
             result:
@@ -124,44 +126,81 @@ class StackdriverMetricClient(MetricClient):
 
     @staticmethod
     def prepend_label_names(labels, prepend):
-        x = [(StackdriverMetricClient.prepend_key(k,prepend), v) for k, v in labels.items()]
+        """For a dictionary of labels, prepend the keys
+
+        Args:
+            labels: dictionary of labels
+            prepend: string. Value with which to prepend the keys
+
+        Returns:
+            A dictionary
+        """
+        x = [(StackdriverMetricClient.prepend_key(k, prepend), v) for k, v in labels.items()]
         return dict(x)
 
     @staticmethod
     def prepend_key(key, prepend):
+        """Prepends a key
+
+        Args:
+            key: string value of the dictionary key
+            prepend: string value to be prepended to the key
+        
+        Returns:
+            A string
+        """
         return f'{prepend}__{key}'
 
-    def to_df(self, results):
-        """
-        For a set of results, create a dataframe.
-        Dastaframe will include the result resource labels as
-        columns.
+    def to_df(self, iterator):
+        """Transform a results iterator to a Dataframe.
+
+        For a google.api_core.page_iterator.GRPCIterator, create a dataframe.
+        Dastaframe will include the result resource and metric labels as
+        columns. To prevent possible conflicts, resource labels are prepended with
+        resource__ and metrics with metric__.
+
+        Args:
+            iterator: google.api_core.page_iterator.GRPCIterator that gets returned
+            from the Stackdriver API
+
+        Returns:
+            A Dataframe containing the timeseries data and metric/resource labels.
         """
         points = list()
-        for result in results:
+        for result in iterator:
             labels = self.get_labels(result)
             for point in result.points:
-                start_time = self.convert_point_time(
-                    point.interval.start_time,
-                    as_timestamp=False
-                    )
-
-                end_time = self.convert_point_time(
-                    point.interval.end_time,
-                    as_timestamp=False
-                )
-
-                point_dict = {
-                    'start_timestamp': start_time,
-                    'end_timestamp': end_time,
-                    'value': self.get_point_value(point.value)
-                    }
-                point_dict.update(labels)
-                points.append(point_dict)
+                points.append(self.point_dict(point, labels))
         if len(points) == 0:
             raise NoMetricDataAvailable
 
         return pd.DataFrame(points)
+
+
+    def point_dict(self, point, labels):
+        """Convert Point object to dictionary
+
+        Args:
+            point: google.cloud.monitoring_v3.types.Point
+            labels: dictionary of the metric and resource labels
+
+        Returns:
+            a dictionary containing the points value, start and end time
+            and labels
+        """
+        point_dict = {
+            'start_timestamp': StackdriverMetricClient.convert_point_time(
+                point.interval.start_time,
+                as_timestamp=False
+                ),
+            'end_timestamp': StackdriverMetricClient.convert_point_time(
+                point.interval.end_time,
+                as_timestamp=False
+                ),
+            'value': self.get_point_value(point.value)
+            }
+        point_dict.update(labels)
+        return point_dict
 
     def get_point_value(self, point_value):
         """EXtract value from point_value object
@@ -196,14 +235,6 @@ class StackdriverMetricClient(MetricClient):
 
 
     @staticmethod
-    def fetch_iter_results(results_iterator):
-        results = list()
-        for result in results_iterator:
-            results.append(result)
-        return results
-
-
-    @staticmethod
     def set_interval(end_time, end_time_nanos=0, start_time=None):
         """Create a TimeInterval object based on input start and end times
 
@@ -231,4 +262,3 @@ class StackdriverMetricClient(MetricClient):
         if start_time:
             interval.start_time.seconds = int(start_time)
         return interval
-
