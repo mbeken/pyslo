@@ -18,13 +18,18 @@ class StackdriverMetricClient(MetricClient):
 
     Attributes:
         project:        string. id of the GCP project hosting Stackdriver
-        metric_type:    string. the metric type as defined in stackdriver.
+        metric_type:    string. the metric type as defined in Stackdriver.
                         e.g. composer.googleapis.com/environment/healthy
                         This is most easily found by locating the metric in StackDriver Metrics
                         Explorer, then viewing as JSON.
                         The metric type is found as part of the timeSeriesFilter.
+        resource_type:  string. the resource type as defined in Stackdriver.
+                        This is most easily found by locating the metric in StackDriver Metrics
+                        Explorer, then viewing as JSON.
+                        The resource type is found as part of the timeSeriesFilter.    
         value_type:     metric type, as a type defined in google.cloud.monitoring_v3
                         e.g. monitoring_v3.enums.MetricDescriptor.ValueType.BOOL
+
 
     """
 
