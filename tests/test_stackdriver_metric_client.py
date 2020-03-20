@@ -133,4 +133,3 @@ def test_point_dict(stackdriver_metric_client):
         }
 
     assert stackdriver_metric_client.point_dict(point, labels) == expected
-   
