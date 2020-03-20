@@ -1,10 +1,27 @@
 pyslo package
 =============
 
+Module contents
+---------------
+
+.. automodule:: pyslo
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Submodules
 ----------
 
-pyslo.metric\_client module
+pyslo.sli 
+----------------
+
+.. automodule:: pyslo.sli
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+pyslo.metric\_client 
 ---------------------------
 
 .. automodule:: pyslo.metric_client.metric_client
@@ -12,7 +29,7 @@ pyslo.metric\_client module
    :undoc-members:
    :show-inheritance:
 
-pyslo.stackdriver module
+pyslo.metric\_client.stackdriver 
 ---------------------------
 
 .. automodule:: pyslo.metric_client.stackdriver.stackdriver_metric_client
@@ -25,19 +42,6 @@ pyslo.stackdriver module
    :undoc-members:
    :show-inheritance:
 
-pyslo.sli module
-----------------
-
-.. automodule:: pyslo.sli
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 
-Module contents
----------------
 
-.. automodule:: pyslo
-   :members:
-   :undoc-members:
-   :show-inheritance:
