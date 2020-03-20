@@ -11,8 +11,8 @@ import os
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
     )
-import pytest
 import datetime
+import pytest
 import pytz
 from google.cloud import monitoring_v3
 import google.protobuf as protobuf
