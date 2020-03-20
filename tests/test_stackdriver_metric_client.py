@@ -74,6 +74,22 @@ def test_convert_point_time():
     tsp = StackdriverMetricClient.convert_point_time(timestamp, as_timestamp=True)
     assert tsp == 1584627079.123456789
 
+def test_prepend_label_names():
+    labels = {
+        'key':'value'
+    }
+    prepended_labels = StackdriverMetricClient.prepend_label_names(labels, 'pre')
+    assert prepended_labels == {
+        'pre__key':'value'
+    }
+
+
+def test_prepend_key():
+    key = 'my_key'
+    prepend = 'before'
+    expected = 'before__my_key'
+    assert StackdriverMetricClient.prepend_key(key, prepend) == expected
+
 def test_get_labels():
     result = monitoring_v3.types.TimeSeries()  # pylint: disable=no-member
     result.resource.labels['r1'] = 'r_value1'

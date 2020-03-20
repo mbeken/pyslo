@@ -110,7 +110,6 @@ class StackdriverMetricClient(MetricClient):
             Resource labels have the key resource__labelname.
             Metric labels have the key metric__labelname.
         """
-        print(type(result))
         resource_labels = result.resource.labels
         metric_labels = result.metric.labels
         r = StackdriverMetricClient.prepend_label_names(resource_labels, 'resource')
@@ -120,9 +119,12 @@ class StackdriverMetricClient(MetricClient):
 
     @staticmethod
     def prepend_label_names(labels, prepend):
-        x = [(f'{prepend}__{k}', v) for k, v in labels.items()]
+        x = [(StackdriverMetricClient.prepend_key(k,prepend), v) for k, v in labels.items()]
         return dict(x)
 
+    @staticmethod
+    def prepend_key(key, prepend):
+        return f'{prepend}__{key}'
 
     def to_df(self, results):
         """

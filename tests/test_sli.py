@@ -65,6 +65,11 @@ def test_calculate(sli_instance):
     with pytest.raises(sli.SliException.UnsupportedMetricType):
         sli_instance.calculate()
 
+# def test_group_by_labels(sli_instance):
+#     sli_instance.group_by_resource_labels = ['environment_name', 'project_id']
+#     sli_instance.group_by_metric_labels = ['image_version']
+#     l = sli_instance.group_by_labels
+#     assert sli_instance.group_by_labels == ['resource__environment_name', 'resource__project_id', 'metric__image_version']
 
 
 # def test_sli_get_bool_data(sli_instance):
@@ -85,3 +90,4 @@ def test_error_budget(sli_instance):
 
     sli_instance.slo = 0.99
     # sli_instance.error_budget()
+
