@@ -4,26 +4,41 @@ Calculate service level objective measurements from metrics stored
 in common backends in accordance with the logic set out in the 
 [SRE Workbook](https://landing.google.com/sre/workbook/toc/)
 
-    Typical usage example:
+Typical usage example::
+
+    from google.cloud import monitoring_v3
+    from pyslo.metric_client.stackdriver import StackdriverMetricClient
+    from pyslo.sli import Sli
+
+    PROJECT = <MY_GCP_PROJECT>
+
+    metric_client = StackdriverMetricClient(project=PROJECT)
+    metric_client.metric_type = 'composer.googleapis.com/environment/healthy'
+    metric_client.resource_type = 'cloud_composer_environment'
+    metric_client.value_type = monitoring_v3.enums.MetricDescriptor.ValueType.BOOL
 
     sli = Sli(metric_client)
 
-    sli.window_length = 30  # days
-
+    sli.window_length = 1  # days
     sli.slo = 0.99
 
     sli.get_metric_data()
 
     # Calculate sli/slo doing no group bys.
-
     sli.calculate()
-
     sli.error_budget()
 
+    # Group by some metric labels
+    sli.group_by_resource_labels = ['environment_name', 'project_id']
+    sli.group_by_metric_labels = ['image_version']
+
+    sli.calculate()
+    sli.error_budget()
     print(sli.slo_data)
 """
 
 import time
+import pytz
 from datetime import datetime
 from google.cloud import monitoring_v3
 import pandas as pd
@@ -70,6 +85,7 @@ class Sli():
         self.window_end = time.time()
         self.window_length = 0
         self.slo = None
+        self.slo_data = None
         self.group_by_resource_labels = []
         self.group_by_metric_labels = []
 
@@ -121,10 +137,24 @@ class Sli():
         """
         return self.window_end - self.window_length_seconds
 
-    def calculate(self):
+    def get_metric_data(self):
+        """Retrieve metric data from the metric_client
+
+        Returns:
+            None. Assigns timeseries data to attribute metric_data
         """
-        Calculate SLI based on metric type
+        if self.window_length is None:
+            raise SliException.ValueNotSet("window_length cannot be None")
+        self.metric_data = self.metric_client.timeseries_dataframe(
+            end=self.window_end, duration=self.window_length_seconds
+            )
+
+    def calculate(self):
+        """Calculate SLI based on metric type
+
         Only boolean is supported right now
+        Returns:
+            None. Assigns the calculate slo data to attribute slo_data
         """
         if self.metric_client.value_type == MetricDescriptor.ValueType.BOOL:
             self.calc_bool()
@@ -137,37 +167,22 @@ class Sli():
         else:
             raise SliException.UnsupportedMetricType
 
-    def get_metric_data(self):
-        """
-        Retrieve metric data from the metric_client
-
-        """
-        if self.window_length is None:
-            raise SliException.ValueNotSet("window_length cannot be None")
-        self.metric_data = self.metric_client.timeseries_dataframe(
-            end=self.window_end, duration=self.window_length_seconds
-            )
-
-    def get_bool_data(self):
-        resampler = self.metric_data.resample(
-            '30T', base=0, on='start_timestamp'
-            )
-        self.good = resampler.sum()
-        self.valid = resampler.count()[['value']]
-
     def calc_bool(self):
-        """
+        """Run the bool calculation depending on presence of group bys
 
+        Returns:
+            Dataframe of SLO data. Attribute slo_data is also assigned return value
         """
-        # self.get_metric_data()
         if len(self.group_by_metric_labels) > 0 or len(self.group_by_resource_labels) > 0:
             return self.calc_bool_agg()
         else:
             return self.calc_bool_simple()
 
     def calc_bool_agg(self):
-        """
-        Calculate sli aggregating over the columns in group_by_labels
+        """Calculate sli aggregating over the columns in group_by_labels
+
+        Returns:
+            Dataframe of SLO data. Attribute slo_data is also assigned return value        
         """
         good_events = self.metric_data.groupby(
             self.group_by_labels
@@ -191,8 +206,10 @@ class Sli():
         return self.slo_data
 
     def calc_bool_simple(self):
-        """
-        Calculate sli over the entire dataframe with no aggregation by labels
+        """Calculate sli over the entire dataframe with no aggregation by labels
+
+        Returns:
+            Dataframe of SLO data. Attribute slo_data is also assigned return value         
         """
         valid_events = self.metric_data.shape[0]
         good_events = self.metric_data['value'].sum()
@@ -208,9 +225,17 @@ class Sli():
         return self.slo_data
 
     def error_budget(self):
-        """
+        """Calculate error budgets
+
         Using previously calculated good event and valid event count,
         return the error budget, and budget remaining.
+
+        Returns:
+            Dataframe of SLO data that now includes error budget.
+            Also adds error budget to attribute slo_data
+
+        Raises:
+            SliException.ValueNotSet if slo is not defined already
         """
         if not self.slo:
             raise SliException.ValueNotSet("slo has not been defined")
@@ -224,12 +249,19 @@ class Sli():
         return data
 
     def add_period(self):
+        """Add the period_from and period_to to the slo_data attribute
+
+        Returns:
+            None
+        """
         self.slo_data['period_from'] = datetime.fromtimestamp(
-            self.window_end - self.window_length_seconds)
-        self.slo_data['period_to'] = datetime.fromtimestamp(self.window_end)
+            self.window_end - self.window_length_seconds, tz=pytz.UTC)
+        self.slo_data['period_to'] = datetime.fromtimestamp(self.window_end, tz=pytz.UTC)
 
     def add_slo(self):
-        self.slo_data['slo'] = self.slo
+        """Add the slo value to the slo_data attribute
 
-    def add_labels(self):
-        pass
+        Returns:
+            None
+        """
+        self.slo_data['slo'] = self.slo

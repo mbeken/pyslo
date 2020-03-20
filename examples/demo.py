@@ -2,7 +2,7 @@ from google.cloud import monitoring_v3
 from pyslo.metric_client.stackdriver import StackdriverMetricClient
 from pyslo.sli import Sli
 
-PROJECT = <MY_GCP_PROJECT>
+PROJECT = '<MY_GCP_PROJECT>'
 
 metric_client = StackdriverMetricClient(project=PROJECT)
 metric_client.metric_type = 'composer.googleapis.com/environment/healthy'

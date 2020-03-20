@@ -3,13 +3,17 @@
 # pylint: disable=missing-function-docstring
 # pylint: disable=redefined-outer-name
 # pylint: disable=wrong-import-position
+# pylint: disable=protected-access
+# pylint: disable=no-member
 
 import sys
 import os
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
     )
+import datetime
 import pytest
+import pytz
 from google.cloud import monitoring_v3
 import google.protobuf as protobuf
 from pyslo.metric_client.stackdriver import StackdriverMetricClient
@@ -107,3 +111,25 @@ def test_get_labels():
         'metric__m1':'m_value1',
         'metric__m2':'m_value2',
     }
+
+def test_point_dict(stackdriver_metric_client):
+    point = monitoring_v3.types.Point()
+    point.interval.end_time.seconds = 1584627079
+    point.interval.end_time.nanos = 123456789
+    point.interval.start_time.seconds = point.interval.end_time.seconds - (24*60*60)
+    point.interval.start_time.nanos = point.interval.end_time.nanos
+    point.value.bool_value = True
+
+    labels = {'label1':'some_value', 'label2':'some_other_value'}
+
+    stackdriver_metric_client.value_type = monitoring_v3.enums.MetricDescriptor.ValueType.BOOL
+
+    expected = {
+        'start_timestamp': datetime.datetime(2020, 3, 18, 14, 11, 19, 123457, tzinfo=pytz.UTC),
+        'end_timestamp': datetime.datetime(2020, 3, 19, 14, 11, 19, 123457, tzinfo=pytz.UTC),
+        'value': 1,
+        'label1': 'some_value',
+        'label2': 'some_other_value'
+        }
+
+    assert stackdriver_metric_client.point_dict(point, labels) == expected
