@@ -70,6 +70,7 @@ class Sli():
         self.window_end = time.time()
         self.window_length = 0
         self.slo = None
+        self.slo_data = None
         self.group_by_resource_labels = []
         self.group_by_metric_labels = []
 

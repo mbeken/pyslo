@@ -136,27 +136,57 @@ class StackdriverMetricClient(MetricClient):
         for result in results:
             labels = self.get_labels(result)
             for point in result.points:
-                start_time = self.convert_point_time(
-                    point.interval.start_time,
-                    as_timestamp=False
-                    )
+                # start_time = self.convert_point_time(
+                #     point.interval.start_time,
+                #     as_timestamp=False
+                #     )
 
-                end_time = self.convert_point_time(
-                    point.interval.end_time,
-                    as_timestamp=False
-                )
+                # end_time = self.convert_point_time(
+                #     point.interval.end_time,
+                #     as_timestamp=False
+                # )
 
-                point_dict = {
-                    'start_timestamp': start_time,
-                    'end_timestamp': end_time,
-                    'value': self.get_point_value(point.value)
-                    }
-                point_dict.update(labels)
-                points.append(point_dict)
+                # point_dict = {
+                #     'start_timestamp': start_time,
+                #     'end_timestamp': end_time,
+                #     'value': self.get_point_value(point.value)
+                #     }
+                # point_dict.update(labels)
+                points.append(self.point_dict(point, labels))
         if len(points) == 0:
             raise NoMetricDataAvailable
 
         return pd.DataFrame(points)
+
+
+    def point_dict(self, point, labels):
+        """Convert Point object to dictionary
+
+        Args:
+            point: google.cloud.monitoring_v3.types.Point
+            labels: dictionary of the metric and resource labels
+
+        Returns:
+            a dictionary containing the points value, start and end time
+            and labels
+        """
+        start_time = StackdriverMetricClient.convert_point_time(
+            point.interval.start_time,
+            as_timestamp=False
+            )
+
+        end_time = StackdriverMetricClient.convert_point_time(
+            point.interval.end_time,
+            as_timestamp=False
+        )
+
+        point_dict = {
+            'start_timestamp': start_time,
+            'end_timestamp': end_time,
+            'value': self.get_point_value(point.value)
+            }
+        point_dict.update(labels)
+        return point_dict
 
     def get_point_value(self, point_value):
         """EXtract value from point_value object
@@ -192,9 +222,10 @@ class StackdriverMetricClient(MetricClient):
 
     @staticmethod
     def fetch_iter_results(results_iterator):
-        results = list()
-        for result in results_iterator:
-            results.append(result)
+        # results = list()
+        # for result in results_iterator:
+        #     results.append(result)
+        results = [result for result in results_iterator]
         return results
 
 
