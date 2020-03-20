@@ -17,4 +17,4 @@ framework, it is helpful if you are strung out over multiple clouds
 and on prem environments.
 """
 
-__version__ = '0.0.4'
+__version__ = '0.0.5'
