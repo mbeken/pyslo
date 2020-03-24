@@ -15,7 +15,7 @@ pytest
 
 # Documentation
 
-Visit [readthedocs](https://pyslo.readthedocs.io/en/latest/pyslo.html#module-pyslo.sli) for full documentation.
+Visit [readthedocs](https://pyslo.readthedocs.io/en/latest/pyslo.html) for full documentation.
 
 # Current Support
 
