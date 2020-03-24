@@ -12,7 +12,13 @@ pip install pyslo
 ```sh
 pytest
 ```
+
+# Documentation
+
+Visit [readthedocs](https://pyslo.readthedocs.io/en/latest/pyslo.html) for full documentation.
+
 # Current Support
+
 ## Providers
 At this time, the [Stackdriver](https://cloud.google.com/monitoring/api/metrics_gcp) backend is supported. Future plans include Prometheus and [Azure Monitoring](https://docs.microsoft.com/en-us/azure/azure-monitor/platform/rest-api-walkthrough)
 
