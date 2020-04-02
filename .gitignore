@@ -2,7 +2,7 @@
 dev_scripts/
 pipelines/
 .vscode/
-
+tests/data/setup_data.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
