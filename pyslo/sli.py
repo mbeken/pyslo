@@ -1,7 +1,7 @@
 """SLI contains the logic needed to computed SLI/SLO metrics.
 
 Calculate service level objective measurements from metrics stored
-in common backends in accordance with the logic set out in the 
+in common backends in accordance with the logic set out in the
 [SRE Workbook](https://landing.google.com/sre/workbook/toc/)
 
 Typical usage example::
@@ -38,8 +38,8 @@ Typical usage example::
 """
 
 import time
-import pytz
 from datetime import datetime
+import pytz
 from google.cloud import monitoring_v3
 import pandas as pd
 from .metric_client import MetricClient
@@ -182,7 +182,7 @@ class Sli():
         """Calculate sli aggregating over the columns in group_by_labels
 
         Returns:
-            Dataframe of SLO data. Attribute slo_data is also assigned return value        
+            Dataframe of SLO data. Attribute slo_data is also assigned return value
         """
         good_events = self.metric_data.groupby(
             self.group_by_labels
@@ -209,7 +209,7 @@ class Sli():
         """Calculate sli over the entire dataframe with no aggregation by labels
 
         Returns:
-            Dataframe of SLO data. Attribute slo_data is also assigned return value         
+            Dataframe of SLO data. Attribute slo_data is also assigned return value
         """
         valid_events = self.metric_data.shape[0]
         good_events = self.metric_data['value'].sum()
@@ -218,9 +218,8 @@ class Sli():
                 'count_good': good_events,
                 'count_valid': valid_events,
                 'sli': good_events/valid_events
-            }
-        ]
-
+                }
+            ]
         )
         return self.slo_data
 

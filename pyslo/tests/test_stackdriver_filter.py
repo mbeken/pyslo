@@ -2,13 +2,7 @@
 """
 # pylint: disable=missing-function-docstring
 # pylint: disable=redefined-outer-name
-# pylint: disable=wrong-import-position
 
-import sys
-import os
-sys.path.insert(
-    0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-    )
 import pytest
 from pyslo.metric_client.stackdriver import StackDriverFilter
 
@@ -36,5 +30,5 @@ def test_string(stackdriver_filter):
     assert stackdriver_filter.string == expected_filter
 
     stackdriver_filter.metric_type = 'composer.googleapis.com/environment/healthy'
-    expected_filter = 'metric.type="composer.googleapis.com/environment/healthy" resource.type="cloud_composer_environment" '
+    expected_filter = 'metric.type="composer.googleapis.com/environment/healthy" resource.type="cloud_composer_environment" '  # pylint: disable=line-too-long
     assert stackdriver_filter.string == expected_filter
