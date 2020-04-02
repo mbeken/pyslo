@@ -2,15 +2,9 @@
 """
 # pylint: disable=missing-function-docstring
 # pylint: disable=redefined-outer-name
-# pylint: disable=wrong-import-position
 # pylint: disable=protected-access
 # pylint: disable=no-member
 
-import sys
-import os
-sys.path.insert(
-    0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-    )
 import datetime
 import pytest
 import pytz
@@ -34,12 +28,12 @@ def test_metric_type(stackdriver_metric_client):
 def test_resource_type(stackdriver_metric_client):
     stackdriver_metric_client.resource_type = 'a_crazy_resource'
     assert stackdriver_metric_client.resource_type == 'a_crazy_resource'
-    assert stackdriver_metric_client._filter.resource_type == 'a_crazy_resource'    
+    assert stackdriver_metric_client._filter.resource_type == 'a_crazy_resource'
 
 def test_filter(stackdriver_metric_client):
     stackdriver_metric_client.metric_type = 'composer.googleapis.com/environment/healthy'
-    assert stackdriver_metric_client._filter.string == 'metric.type="composer.googleapis.com/environment/healthy" '
-    
+    assert stackdriver_metric_client._filter.string == 'metric.type="composer.googleapis.com/environment/healthy" '  # pylint: disable=line-too-long
+
 
 def test_set_interval(stackdriver_metric_client):
     end_time = 123456
