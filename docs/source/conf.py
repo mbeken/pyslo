@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'pyslo'
-copyright = '2021, Matt Beken'
+copyright = '2020, Matt Beken'
 author = 'Matt Beken'
 
 # The full version, including alpha/beta/rc tags
